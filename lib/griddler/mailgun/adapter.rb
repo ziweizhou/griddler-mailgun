@@ -29,7 +29,8 @@ module Griddler
     private
 
       def determine_sender
-        sender = param_or_header(:From)
+        sender = param_or_header("Reply-To")
+        sender ||= param_or_header(:From)
         sender ||= params[:sender]
       end
 
@@ -54,6 +55,7 @@ module Griddler
           parsed_headers = JSON.parse(params['message-headers'])
           parsed_headers.each{ |h| extracted_headers[h[0]] = h[1] }
         end
+        extracted_headers["message-url"] = params["message-url"]
         ActiveSupport::HashWithIndifferentAccess.new(extracted_headers)
       end
 
