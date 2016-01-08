@@ -82,11 +82,22 @@ module Griddler
       end
 
       def attachment_files
-        attachment_count = params['attachment-count'].to_i
-
-        attachment_count.times.map do |index|
-          params.delete("attachment-#{index+1}")
+        attachments = JSON.parse(params['attachments']) || Array.new
+        attachments.map do |attachment|
+          ActionDispatch::Http::UploadedFile.new({
+            filename: attachment["name"],
+            type: attachment["content-type"],
+            tempfile: create_tempfile(attachment)
+          })
         end
+      end
+
+      def create_tempfile(attachment)
+        tempfile = Tempfile.new(attachment["name"])
+        tempfile.binmode
+        tempfile << open(attachment["url"], :http_basic_authentication => ["api", Rails.configuration.apikey]).read
+        tempfile.rewind
+        tempfile
       end
     end
   end
