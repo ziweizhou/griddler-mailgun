@@ -82,7 +82,11 @@ module Griddler
       end
 
       def attachment_files
-        attachments = JSON.parse(params["attachments"]) || Array.new
+        if params["attachments"].present?
+          attachments = JSON.parse(params["attachments"])
+        else  
+          attachments = Array.new
+        end
         attachments.map do |attachment|
           ActionDispatch::Http::UploadedFile.new(
             {
