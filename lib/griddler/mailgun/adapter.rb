@@ -22,7 +22,7 @@ module Griddler
           text: params['body-plain'],
           html: params['body-html'],
           attachments: attachment_files,
-          headers: serialized_headers
+          headers: headers
         }
       end
 
@@ -84,7 +84,7 @@ module Griddler
       def attachment_files
         if params["attachments"].present?
           attachments = JSON.parse(params["attachments"])
-        else  
+        else
           attachments = Array.new
         end
         attachments.map do |attachment|
@@ -101,7 +101,7 @@ module Griddler
       def create_tempfile(attachment)
         tempfile = Tempfile.new(attachment["name"])
         tempfile.binmode
-        tempfile << open(attachment["url"], 
+        tempfile << open(attachment["url"],
           :http_basic_authentication => ["api", Rails.configuration.apikey]).read
         tempfile.rewind
         tempfile
